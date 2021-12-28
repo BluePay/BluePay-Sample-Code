@@ -2,7 +2,7 @@
 /*
  * BluePay PHP Sample code.
  *
- * Updated: 2021-06-01
+ * Updated: 2021-12-28
  *
  * This code is Free.  You may use it, modify it and redistribute it.
  * If you do make modifications that are useful, Bluepay would love it if you donated
@@ -970,8 +970,7 @@ class BluePay {
         } // end Process function
 
     protected function parseResponse() {
-	        $str = explode('?', trim($this->response))[1];
-        parse_str($str, $output);
+        parse_str(trim($this->response), $output);
         $this->status = isset($output['Result']) ? $output['Result'] : null;
         $this->message = isset($output['MESSAGE']) ? $output['MESSAGE'] : null;
         $this->transID = isset($output['RRNO']) ? $output['RRNO'] : null;
@@ -1054,5 +1053,5 @@ class BluePay {
     }
 }
 
-define("RELEASE_VERSION", '3.0.6');
+define("RELEASE_VERSION", '3.0.7');
 ?>
