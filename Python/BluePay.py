@@ -2,7 +2,7 @@
 #
 # BluePay Python Sample code.
 #
-# Updated: 2021-06-01
+# Updated: 2025-01-06
 #
 # This code is Free.  You may use it, modify it and redistribute it.
 # If you do make modifications that are useful, Bluepay would love it if you donated
@@ -27,7 +27,7 @@ import sys # PG: added this
 
 class BluePay:
 
-    RELEASE_VERSION = '3.0.6'
+    RELEASE_VERSION = '3.0.7'
     # Sets all the attributes to default to empty strings if not defined
     
     # Merchant fields
@@ -747,6 +747,11 @@ class BluePay:
                 'CUST_TOKEN' : self.cust_token
             })
 
+        if self.backend_id != '':
+            fields.update({
+                'BACKEND_ID' : self.backend_id
+            })
+
         if self.api == 'bpdailyreport2':
             self.url = 'https://secure.bluepay.com/interfaces/bpdailyreport2'
             fields.update({
@@ -757,7 +762,6 @@ class BluePay:
                 'DO_NOT_ESCAPE' : self.do_not_escape,
                 'QUERY_BY_SETTLEMENT' : self.query_by_settlement,
                 'QUERY_BY_HIERARCHY' : self.subaccounts_searched,
-                'BACKEND_ID' : self.backend_id,
                 'ORIGIN' : self.origin,
                 'EXCLUDE_ERRORS' : self.excludeErrors,
                 'TPS_HASH_TYPE': self.tps_hash_type
