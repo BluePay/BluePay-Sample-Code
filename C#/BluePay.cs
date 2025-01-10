@@ -1,7 +1,7 @@
 /*
  * BluePay C#.NET Sample code.
  *
- * Updated: 2024-10-21
+ * Updated: 2025-01-10
  *
  * This code is Free.  You may use it, modify it and redistribute it.
  * If you do make modifications that are useful, Bluepay would love it if you donated
@@ -28,7 +28,7 @@ namespace BluePayLibrary
     /// </summary>
     public class BluePay
     {
-        public const string RELEASE_VERSION = "3.0.8";
+        public const string RELEASE_VERSION = "3.0.10";
                 
 		// gateway account identifier
         public string accountID = "";
@@ -52,6 +52,7 @@ namespace BluePayLibrary
         public string accountNum = "";
         public string accountType = "";
         public string docType = "";
+		public string achDescription = "";
         public string name1 = "";
         public string name2 = "";
         public string addr1 = "";
@@ -227,13 +228,15 @@ namespace BluePayLibrary
         /// <param name="accountNum"></param>
         /// <param name="accountType"></param>
         /// <param name="docType"></param>
-        public void SetACHInformation(string routingNum, string accountNum, string accountType, string docType = null)
+        /// <param name="achDescription"></param>
+        public void SetACHInformation(string routingNum, string accountNum, string accountType, string docType = null, string achDescription = null)
         {
             this.paymentType = "ACH";
             this.routingNum = routingNum;
             this.accountNum = accountNum;
             this.accountType = accountType;
             this.docType = docType;
+			this.achDescription = achDescription;
         }
 
         /// <summary>
@@ -1176,7 +1179,8 @@ namespace BluePayLibrary
                         postData = postData + "&ACH_ROUTING=" + HttpUtility.UrlEncode(this.routingNum) +
                         "&ACH_ACCOUNT=" + HttpUtility.UrlEncode(this.accountNum) +
                         "&ACH_ACCOUNT_TYPE=" + HttpUtility.UrlEncode(this.accountType) +
-                        "&DOC_TYPE=" + HttpUtility.UrlEncode(this.docType);
+                        "&DOC_TYPE=" + HttpUtility.UrlEncode(this.docType) +
+						"&ACH_DESCRIPTION=" + HttpUtility.UrlEncode(this.achDescription);
                     }
                     break;
                 case "bp20rebadmin":
