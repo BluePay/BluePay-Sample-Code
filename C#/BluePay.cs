@@ -1,7 +1,7 @@
 /*
  * BluePay C#.NET Sample code.
  *
- * Updated: 2021-07-06
+ * Updated: 2024-10-21
  *
  * This code is Free.  You may use it, modify it and redistribute it.
  * If you do make modifications that are useful, Bluepay would love it if you donated
@@ -28,10 +28,14 @@ namespace BluePayLibrary
     /// </summary>
     public class BluePay
     {
-        public const string RELEASE_VERSION = "3.0.7";
+        public const string RELEASE_VERSION = "3.0.8";
                 
-        // required for every transaction
+		// gateway account identifier
         public string accountID = "";
+		// or
+		public string platformMerchantID = "";
+
+        // required for every transaction
         public string URL = "";
         public string secretKey = "";
         public string mode = "";
@@ -149,11 +153,12 @@ namespace BluePayLibrary
         // level 3 processing field
         public List<Dictionary<string, string>> lineItems = new List<Dictionary<string, string>>();
 
-        public BluePay(string accountID, string secretKey, string mode)
+        public BluePay(string accountID = "", string secretKey, string mode, string platformMerchantID = "")
         {
             this.accountID = accountID;
             this.secretKey = secretKey;
             this.mode = mode;
+			this.platformMerchantID = platformMerchantID;
         }
 
         /// <summary>
@@ -697,11 +702,12 @@ namespace BluePayLibrary
         }
 
         /// <summary>
-        /// Calculates TAMPER_PROOF_SEAL for bp20post API
+        /// Calculates TAMPER_PROOF_SEAL for bp10emu API
         /// </summary>
         public void CalcTPS()
         {
             string tamper_proof_seal = this.accountID
+                                    + this.platformMerchantID
                                     + this.transType
                                     + this.amount
                                     + this.doRebill
@@ -719,7 +725,7 @@ namespace BluePayLibrary
         /// </summary>
         public void CalcRebillTPS()
         {
-            string tamper_proof_seal = this.accountID + this.transType + this.rebillID;
+            string tamper_proof_seal = this.accountID + this.platformMerchantID + this.transType + this.rebillID;
             this.TPS = GenerateTPS(tamper_proof_seal, this.tpsHashType);
         }
 
@@ -728,7 +734,7 @@ namespace BluePayLibrary
         /// </summary>
         public void CalcReportTPS()
         {
-            string tamper_proof_seal = this.accountID + this.reportStartDate + this.reportEndDate;
+            string tamper_proof_seal = this.accountID + this.platformMerchantID + this.reportStartDate + this.reportEndDate;
             this.TPS = GenerateTPS(tamper_proof_seal, this.tpsHashType);
         }
 
@@ -933,7 +939,7 @@ namespace BluePayLibrary
         /// </summary>
         public string SetReceiptTpsString()
         {
-            return accountID + receiptFormID + returnURL + dba + amexImage + discoverImage + receiptTpsDef + receiptTpsHashType;
+            return accountID + platformMerchantID + receiptFormID + returnURL + dba + amexImage + discoverImage + receiptTpsDef + receiptTpsHashType;
         }
 
         /// <summary>
@@ -941,7 +947,7 @@ namespace BluePayLibrary
         /// </summary>
         public string SetBp10emuTpsString()
         {
-            string bp10emu = accountID + receiptURL + receiptURL + receiptURL + mode + transType + bp10emuTpsDef + tpsHashType;
+            string bp10emu = accountID + platformMerchantID + receiptURL + receiptURL + receiptURL + mode + transType + bp10emuTpsDef + tpsHashType;
             return AddStringProtectedStatus(bp10emu);
         }
 
@@ -950,7 +956,7 @@ namespace BluePayLibrary
         /// </summary>
         public string SetShpfTpsString()
         {
-            string shpf = shpfFormID + accountID + dba + bp10emuTamperProofSeal + amexImage + discoverImage + bp10emuTpsDef + tpsHashType + shpfTpsDef + shpfTpsHashType;
+            string shpf = shpfFormID + accountID + platformMerchantID + dba + bp10emuTamperProofSeal + amexImage + discoverImage + bp10emuTpsDef + tpsHashType + shpfTpsDef + shpfTpsHashType;
             return AddStringProtectedStatus(shpf);
         }
 
@@ -966,6 +972,7 @@ namespace BluePayLibrary
             {
                 output = "https://secure.bluepay.com/interfaces/shpf?SHPF_FORM_ID=" + receiptFormID +
                 "&SHPF_ACCOUNT_ID=" + accountID +
+				"&PLATFORM_MERCHANT_ID=" + platformMerchantID +
                 "&SHPF_TPS_DEF=" + EncodeURL(receiptTpsDef) +
                 "&SHPF_TPS_HASH_TYPE=" + EncodeURL(receiptTpsHashType) +
                 "&SHPF_TPS=" + EncodeURL(receiptTamperProofSeal) +
@@ -1039,6 +1046,7 @@ namespace BluePayLibrary
             "https://secure.bluepay.com/interfaces/shpf?" +
             "SHPF_FORM_ID=" + EncodeURL(shpfFormID) +
             "&SHPF_ACCOUNT_ID=" + EncodeURL(accountID) +
+			"&PLATFORM_MERCHANT_ID=" + EncodeURL(platformMerchantID) +
             "&SHPF_TPS_DEF=" + EncodeURL(shpfTpsDef) +
             "&SHPF_TPS_HASH_TYPE=" + EncodeURL(shpfTpsHashType) +
             "&SHPF_TPS=" + EncodeURL(shpfTamperProofSeal) +
@@ -1073,6 +1081,7 @@ namespace BluePayLibrary
                     CalcReportTPS();
                     this.URL = "https://secure.bluepay.com/interfaces/bpdailyreport2";
                     postData += "ACCOUNT_ID=" + HttpUtility.UrlEncode(this.accountID) +
+					"&PLATFORM_MERCHANT_ID=" + HttpUtility.UrlEncode(this.platformMerchantID) +
                     "&MODE=" + HttpUtility.UrlEncode(this.mode) +
                     "&TAMPER_PROOF_SEAL=" + HttpUtility.UrlEncode(this.TPS) +
                     "&REPORT_START_DATE=" + HttpUtility.UrlEncode(this.reportStartDate) +
@@ -1093,6 +1102,7 @@ namespace BluePayLibrary
                     CalcReportTPS();
                     this.URL = "https://secure.bluepay.com/interfaces/stq";
                     postData += "ACCOUNT_ID=" + HttpUtility.UrlEncode(this.accountID) +
+					"&PLATFORM_MERCHANT_ID=" + HttpUtility.UrlEncode(this.platformMerchantID) +
                     "&MODE=" + HttpUtility.UrlEncode(this.mode) +
                     "&TAMPER_PROOF_SEAL=" + HttpUtility.UrlEncode(this.TPS) +
                     "&REPORT_START_DATE=" + HttpUtility.UrlEncode(this.reportStartDate) +
@@ -1110,6 +1120,7 @@ namespace BluePayLibrary
                     CalcTPS();
                     this.URL = "https://secure.bluepay.com/interfaces/bp10emu";
                     postData += "MERCHANT=" + HttpUtility.UrlEncode(this.accountID) +
+					"&PLATFORM_MERCHANT_ID=" + HttpUtility.UrlEncode(this.platformMerchantID) +
                     "&MODE=" + HttpUtility.UrlEncode(this.mode) +
                     "&TRANSACTION_TYPE=" + HttpUtility.UrlEncode(this.transType) +
                     "&TAMPER_PROOF_SEAL=" + HttpUtility.UrlEncode(this.TPS) +
@@ -1172,6 +1183,7 @@ namespace BluePayLibrary
                     CalcRebillTPS();
                     this.URL = "https://secure.bluepay.com/interfaces/bp20rebadmin";
                     postData += "ACCOUNT_ID=" + HttpUtility.UrlEncode(this.accountID) +
+					"&PLATFORM_MERCHANT_ID=" + HttpUtility.UrlEncode(this.platformMerchantID) +
                     "&TAMPER_PROOF_SEAL=" + HttpUtility.UrlEncode(this.TPS) +
                     "&TRANS_TYPE=" + HttpUtility.UrlEncode(this.transType) +
                     "&REBILL_ID=" + HttpUtility.UrlEncode(this.rebillID) +
